@@ -1,0 +1,32 @@
+services:
+  # Backend API
+  - type: web
+    name: secret-santa-api
+    env: node
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: FRONTEND_URL
+        sync: false  # Set this in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true  # Auto-generate a random secret
+      - key: DATABASE_PATH
+        value: /opt/render/project/src/backend/database.sqlite
+    disk:
+      name: database-disk
+      mountPath: /opt/render/project/src/backend
+      sizeGB: 1
+
+  # Frontend
+  - type: web
+    name: secret-santa-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://secret-santa-api.onrender.com/api/*
+

@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input-field {
+    @apply appearance-none relative block w-full px-3 py-2 border-2 border-gray-800 placeholder-gray-500 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600 focus:z-10 sm:text-sm;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+  
+  .btn-primary {
+    @apply relative w-full flex justify-center py-2 px-4 border-2 border-primary-800 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all;
+    box-shadow: 4px 4px 0px 0px rgb(127 29 29);
+    transform: translate(0, 0);
+  }
+  
+  .btn-primary:hover {
+    box-shadow: 2px 2px 0px 0px rgb(127 29 29);
+    transform: translate(2px, 2px);
+  }
+  
+  .btn-secondary {
+    @apply relative w-full flex justify-center py-2 px-4 border-2 border-gray-800 text-sm font-medium rounded-none text-gray-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all;
+    box-shadow: 4px 4px 0px 0px rgb(31 41 55);
+    transform: translate(0, 0);
+  }
+  
+  .btn-secondary:hover {
+    box-shadow: 2px 2px 0px 0px rgb(31 41 55);
+    transform: translate(2px, 2px);
+  }
+
+  .btn-christmas {
+    @apply relative w-full flex justify-center py-2 px-4 border-2 border-green-800 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all;
+    box-shadow: 4px 4px 0px 0px rgb(22 101 52);
+    transform: translate(0, 0);
+  }
+  
+  .btn-christmas:hover {
+    box-shadow: 2px 2px 0px 0px rgb(22 101 52);
+    transform: translate(2px, 2px);
+  }
+}
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(to bottom, #fef9f9 0%, #fef2f2 100%);
+  }
+
+  body {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(220, 38, 38, 0.03) 2px,
+      rgba(220, 38, 38, 0.03) 4px
+    );
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white border-2 border-gray-800 p-6;
+    box-shadow: 8px 8px 0px 0px rgb(127 29 29 / 0.2);
+  }
+
+  .card-green {
+    @apply bg-white border-2 border-green-800 p-6;
+    box-shadow: 8px 8px 0px 0px rgb(22 101 52 / 0.2);
+  }
+
+  .pixel-icon {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: contrast(1.2) brightness(1.1);
+  }
+}
+
+/* Pixelated text effect */
+.pixel-text {
+  font-family: 'Press Start 2P', monospace;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.05em;
+}
