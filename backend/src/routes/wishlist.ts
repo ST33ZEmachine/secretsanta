@@ -131,25 +131,26 @@ router.get('/participant/:participantId', authenticateToken, asyncHandler(async 
     // Query items by user_id and group_id to handle cases where same user has multiple participant records
     db.all(`
       SELECT 
-        wi.*,
-        CASE 
-          WHEN EXISTS(SELECT 1 FROM purchases p WHERE p.wishlist_item_id = wi.id) 
-          THEN 1 
-          ELSE 0 
-        END as is_purchased,
-        CASE 
-          WHEN EXISTS(SELECT 1 FROM purchases p WHERE p.wishlist_item_id = wi.id AND p.buyer_participant_id = ?) 
-          THEN 1 
-          ELSE 0 
-        END as purchased_by_me,
-        (SELECT COALESCE(buyer_p.name, buyer_p.email) 
-         FROM purchases pur 
-         JOIN participants buyer_p ON pur.buyer_participant_id = buyer_p.id 
-         WHERE pur.wishlist_item_id = wi.id 
-         LIMIT 1) as purchased_by_name
+        wi.id,
+        wi.participant_id,
+        wi.group_id,
+        wi.title,
+        wi.description,
+        wi.link,
+        wi.image_url,
+        wi.secondhand_ok,
+        wi.created_at,
+        wi.updated_at,
+        CASE WHEN MAX(p_all.id) IS NOT NULL THEN 1 ELSE 0 END as is_purchased,
+        CASE WHEN MAX(p_me.id) IS NOT NULL THEN 1 ELSE 0 END as purchased_by_me,
+        MAX(COALESCE(buyer_p.name, buyer_p.email)) as purchased_by_name
       FROM wishlist_items wi
       JOIN participants p ON wi.participant_id = p.id
+      LEFT JOIN purchases p_all ON p_all.wishlist_item_id = wi.id
+      LEFT JOIN purchases p_me ON p_me.wishlist_item_id = wi.id AND p_me.buyer_participant_id = ?
+      LEFT JOIN participants buyer_p ON p_all.buyer_participant_id = buyer_p.id
       WHERE p.user_id = ? AND wi.group_id = ?
+      GROUP BY wi.id
       ORDER BY wi.created_at ASC
     `, [userParticipant.id, targetParticipantUser?.user_id, participant.group_id], (err, rows) => {
       if (err) {
