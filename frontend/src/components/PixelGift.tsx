@@ -20,8 +20,6 @@ const PixelGift: React.FC<PixelGiftProps> = ({ size = 32, className = '' }) => {
         height={size} 
         viewBox="0 0 32 32"
         style={{ 
-          imageRendering: 'pixelated' as any,
-          imageRendering: '-moz-crisp-edges' as any,
           imageRendering: 'crisp-edges' as any,
         }}
       >

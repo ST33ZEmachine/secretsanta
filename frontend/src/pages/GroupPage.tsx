@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { apiService } from '../services/apiService';
 import { 
   UserPlus, 
-  Sparkles, 
-  AlertCircle, 
-  CheckCircle,
   ArrowLeft 
 } from 'lucide-react';
 import PixelIcon from '../components/PixelIcon';
@@ -51,7 +47,6 @@ const getVariantFromId = (id: string): number => {
 
 const GroupPage: React.FC = () => {
   const { groupId } = useParams<{ groupId: string }>();
-  const { user } = useAuth();
   const navigate = useNavigate();
   
   const [group, setGroup] = useState<Group | null>(null);
@@ -63,7 +58,6 @@ const GroupPage: React.FC = () => {
   
   // Share link state
   const [shareUrl, setShareUrl] = useState('');
-  const [showShareLink, setShowShareLink] = useState(false);
   
   // Assignment state
   const [assignmentsGenerated, setAssignmentsGenerated] = useState(false);
@@ -120,7 +114,6 @@ const GroupPage: React.FC = () => {
     try {
       const response = await apiService.getShareLink(groupId!);
       setShareUrl(response.shareUrl);
-      setShowShareLink(true);
       return response.shareUrl;
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to get share link');

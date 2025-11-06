@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { apiService } from '../services/apiService';
-import { Users, FileText, AlertCircle } from 'lucide-react';
+import { Users } from 'lucide-react';
 import PixelIcon from '../components/PixelIcon';
 import PixelGift from '../components/PixelGift';
 

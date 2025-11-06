@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiService } from '../services/apiService';
-import { User, AlertCircle, CheckCircle } from 'lucide-react';
+import { User } from 'lucide-react';
 import PixelIcon from '../components/PixelIcon';
 import PixelGift from '../components/PixelGift';
 
 const JoinGroupPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();
-  const { user, login } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(false);
