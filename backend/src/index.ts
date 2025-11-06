@@ -69,8 +69,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(statusCode).json({ error: err.message || 'Something went wrong!' });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+// 404 handler - catch all unmatched routes
+app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
