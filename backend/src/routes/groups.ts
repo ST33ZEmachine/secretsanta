@@ -20,11 +20,17 @@ router.post('/', authenticateToken, validateGroupCreation, asyncHandler(async (r
     : Number(giftsPerParticipant);
   const validGiftsPerParticipant = [1, 2, 3].includes(giftsPerParticipantNum) ? giftsPerParticipantNum : 1;
 
+  // Ensure maxParticipants is a valid number
+  const maxParticipantsNum = typeof maxParticipants === 'string' 
+    ? parseInt(maxParticipants, 10) 
+    : Number(maxParticipants);
+  const validMaxParticipants = maxParticipantsNum > 0 ? maxParticipantsNum : 50;
+
   await new Promise((resolve, reject) => {
     db.run(
       `INSERT INTO groups (id, name, description, owner_id, max_participants, gifts_per_participant, share_token)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [groupId, name.trim(), description?.trim() || null, req.user!.id, maxParticipants || 50, validGiftsPerParticipant, shareToken],
+      [groupId, name.trim(), description?.trim() || null, req.user!.id, validMaxParticipants, validGiftsPerParticipant, shareToken],
       function(err) {
         if (err) reject(err);
         else resolve(this);
@@ -170,15 +176,19 @@ router.get('/:groupId', authenticateToken, asyncHandler(async (req: AuthRequest,
     }
   });
 
-  // Ensure gifts_per_participant is a number (SQLite may return it as string)
+  // Ensure gifts_per_participant and max_participants are numbers (SQLite may return them as strings)
   const giftsPerParticipant = group.gifts_per_participant != null 
     ? Number(group.gifts_per_participant) 
     : 1;
+  const maxParticipants = group.max_participants != null
+    ? Number(group.max_participants)
+    : 50;
 
   res.json({
     group: {
       ...group,
       gifts_per_participant: giftsPerParticipant,
+      max_participants: maxParticipants,
       isOwner,
       isParticipant
     },
@@ -233,8 +243,12 @@ router.put('/:groupId', authenticateToken, asyncHandler(async (req: AuthRequest,
     updateValues.push(description?.trim() || null);
   }
   if (maxParticipants !== undefined) {
+    const maxParticipantsNum = typeof maxParticipants === 'string' 
+      ? parseInt(maxParticipants, 10) 
+      : Number(maxParticipants);
+    const validMaxParticipants = maxParticipantsNum > 0 ? maxParticipantsNum : 50;
     updateFields.push('max_participants = ?');
-    updateValues.push(maxParticipants || 50);
+    updateValues.push(validMaxParticipants);
   }
   if (validGiftsPerParticipant !== undefined) {
     updateFields.push('gifts_per_participant = ?');
