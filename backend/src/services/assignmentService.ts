@@ -72,82 +72,111 @@ const createAssignments = (participants: Participant[], giftsPerParticipant: num
     throw new Error('Need at least 2 participants');
   }
   
+  // Validate that balanced assignment is possible
+  // Each person gives N gifts and receives N gifts
+  // Total gifts = participants.length * giftsPerParticipant
+  // For this to be balanced, we need enough participants
+  if (participants.length < giftsPerParticipant + 1) {
+    throw new Error(`Cannot create balanced assignments: need at least ${giftsPerParticipant + 1} participants for ${giftsPerParticipant} gifts per person`);
+  }
+  
+  // Track how many times each participant has been assigned as a receiver
+  const receiverCounts = new Map<string, number>();
+  participants.forEach(p => receiverCounts.set(p.id, 0));
+  
+  // Track assignments per giver-receiver pair to avoid duplicates
+  const giverReceiverPairs = new Map<string, Set<string>>();
+  participants.forEach(p => giverReceiverPairs.set(p.id, new Set()));
+  
+  // Create a shuffled list of participants for round-robin assignment
+  const shuffledParticipants = [...participants].sort(() => Math.random() - 0.5);
+  
   // For each participant, assign them the required number of receivers
-  participants.forEach((giver, giverIndex) => {
-    // Create a list of possible receivers (excluding self)
-    let availableReceivers = participants.filter(p => p.id !== giver.id);
+  participants.forEach((giver) => {
+    const giftsToAssign = giftsPerParticipant;
+    let assigned = 0;
     
-    // For each gift this person needs to give
-    for (let giftNum = 1; giftNum <= giftsPerParticipant; giftNum++) {
-      // Shuffle available receivers
-      availableReceivers = availableReceivers.sort(() => Math.random() - 0.5);
+    // Try to assign receivers ensuring balance
+    while (assigned < giftsToAssign) {
+      let bestReceiver: Participant | null = null;
+      let bestScore = -1;
       
-      // Find a valid receiver (not self, and preferably not already assigned by this giver)
-      let receiver = null;
-      let attempts = 0;
-      const maxAttempts = availableReceivers.length * 10; // Prevent infinite loop
-      
-      while (!receiver && attempts < maxAttempts && availableReceivers.length > 0) {
-        const candidate = availableReceivers[0];
+      // Find the best receiver for this giver
+      for (const receiver of shuffledParticipants) {
+        // Skip self
+        if (receiver.id === giver.id) continue;
         
-        // Check if this candidate is valid (not self - this should never happen, but double-check)
-        if (candidate.id !== giver.id) {
-          // Check if we've already assigned this giver -> receiver combination
-          const alreadyAssigned = assignments.some(a => 
-            a.giverId === giver.id && a.receiverId === candidate.id
-          );
-          
-          if (!alreadyAssigned) {
-            receiver = candidate;
-          } else {
-            // Move this candidate to the end and try the next one
-            availableReceivers.push(availableReceivers.shift()!);
-          }
-        }
+        // Skip if already assigned this giver->receiver pair
+        if (giverReceiverPairs.get(giver.id)?.has(receiver.id)) continue;
         
-        attempts++;
+        // Calculate score: prefer receivers who need more gifts
+        const receiverCount = receiverCounts.get(receiver.id) || 0;
+        const score = giftsPerParticipant - receiverCount;
         
-        // If we've tried all receivers and none work, we need to check if it's possible
-        if (attempts % availableReceivers.length === 0 && !receiver) {
-          // If there are fewer available receivers than we need, we might have a problem
-          // But actually, if we need to give N gifts and there are N+ people (excluding self),
-          // it should be possible. The issue might be that we've already assigned this giver
-          // to all available people. In that case, we need to allow duplicates or handle differently.
-          // For now, let's just take the first available (even if already assigned)
-          if (availableReceivers.length > 0) {
-            const candidate = availableReceivers[0];
-            if (candidate.id !== giver.id) {
-              receiver = candidate;
-            }
-          }
+        // If this receiver still needs gifts and has a better score, choose them
+        if (receiverCount < giftsPerParticipant && score > bestScore) {
+          bestReceiver = receiver;
+          bestScore = score;
         }
       }
       
-      // If we still don't have a receiver, something went wrong
-      if (!receiver) {
-        throw new Error(`Unable to find valid receiver for ${giver.name || giver.email}. This may happen if there are too few participants for the requested number of gifts per person.`);
+      // If we found a good receiver, assign them
+      if (bestReceiver) {
+        const giftNumber = assigned + 1;
+        assignments.push({
+          giverId: giver.id,
+          receiverId: bestReceiver.id,
+          giftNumber: giftNumber
+        });
+        
+        // Update tracking
+        receiverCounts.set(bestReceiver.id, (receiverCounts.get(bestReceiver.id) || 0) + 1);
+        giverReceiverPairs.get(giver.id)?.add(bestReceiver.id);
+        assigned++;
+      } else {
+        // If no perfect match, find any available receiver (even if they already have enough)
+        // This handles edge cases where perfect balance isn't possible
+        let fallbackReceiver: Participant | null = null;
+        for (const receiver of shuffledParticipants) {
+          if (receiver.id === giver.id) continue;
+          if (giverReceiverPairs.get(giver.id)?.has(receiver.id)) continue;
+          fallbackReceiver = receiver;
+          break;
+        }
+        
+        if (fallbackReceiver) {
+          const giftNumber = assigned + 1;
+          assignments.push({
+            giverId: giver.id,
+            receiverId: fallbackReceiver.id,
+            giftNumber: giftNumber
+          });
+          giverReceiverPairs.get(giver.id)?.add(fallbackReceiver.id);
+          receiverCounts.set(fallbackReceiver.id, (receiverCounts.get(fallbackReceiver.id) || 0) + 1);
+          assigned++;
+        } else {
+          throw new Error(`Unable to find valid receiver for ${giver.name || giver.email}. This may happen if there are too few participants for the requested number of gifts per person.`);
+        }
       }
-      
-      // Double-check: ensure no self-assignment (should never happen, but safety check)
-      if (receiver.id === giver.id) {
-        throw new Error(`Invalid assignment: ${giver.name || giver.email} cannot be assigned to themselves`);
-      }
-      
-      // Create the assignment
-      assignments.push({
-        giverId: giver.id,
-        receiverId: receiver.id,
-        giftNumber: giftNum
-      });
     }
   });
   
-  // Final validation: ensure no self-assignments
+  // Validate assignments
   assignments.forEach(assignment => {
     if (assignment.giverId === assignment.receiverId) {
       throw new Error('Invalid assignment detected: someone was assigned to themselves');
     }
   });
+  
+  // Verify balance (each person should receive close to giftsPerParticipant)
+  const receiverCountsArray = Array.from(receiverCounts.values());
+  const minReceives = Math.min(...receiverCountsArray);
+  const maxReceives = Math.max(...receiverCountsArray);
+  
+  // Allow some flexibility (within 1 gift difference) due to randomization
+  if (maxReceives - minReceives > 1) {
+    console.warn(`Assignment balance warning: receivers range from ${minReceives} to ${maxReceives} gifts (target: ${giftsPerParticipant})`);
+  }
   
   return assignments;
 };
