@@ -55,6 +55,22 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Root endpoint - helpful for checking if server is running
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Secret Santa API Server',
+    status: 'running',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      groups: '/api/groups',
+      participants: '/api/participants',
+      wishlist: '/api/wishlist',
+      recommendations: '/api/recommendations'
+    }
+  });
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
