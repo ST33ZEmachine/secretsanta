@@ -13,10 +13,10 @@ services:
       - key: JWT_SECRET
         generateValue: true  # Auto-generate a random secret
       - key: DATABASE_PATH
-        value: /opt/render/project/src/backend/database.sqlite
+        value: /opt/render/project/src/backend/data/database.sqlite
     disk:
       name: database-disk
-      mountPath: /opt/render/project/src/backend
+      mountPath: /opt/render/project/src/backend/data
       sizeGB: 1
 
   # Frontend

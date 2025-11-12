@@ -13,7 +13,7 @@ If your groups and data are disappearing, it's likely because the database file 
 1. Go to your Render dashboard
 2. Select your **backend service** (`secret-santa-api`)
 3. Go to **Settings** → Scroll down to **"Disks"** section
-4. Check if you have a disk named `database-disk` mounted at `/opt/render/project/src/backend`
+4. Check if you have a disk named `database-disk` mounted at `/opt/render/project/src/backend/data`
 
 ### Step 2: Add Persistent Disk (if missing)
 
@@ -22,7 +22,7 @@ If your groups and data are disappearing, it's likely because the database file 
 3. Click **"Add Disk"**
 4. Configure:
    - **Name**: `database-disk`
-   - **Mount Path**: `/opt/render/project/src/backend`
+   - **Mount Path**: `/opt/render/project/src/backend/data` ⚠️ **IMPORTANT: Use `/data` subdirectory, not the root!**
    - **Size**: 1 GB (minimum)
 5. Click **"Save"**
 
@@ -31,7 +31,7 @@ If your groups and data are disappearing, it's likely because the database file 
 1. Go to **Environment** tab
 2. Make sure `DATABASE_PATH` is set to:
    ```
-   DATABASE_PATH=/opt/render/project/src/backend/database.sqlite
+   DATABASE_PATH=/opt/render/project/src/backend/data/database.sqlite
    ```
 3. If it's not set, add it
 4. Save and redeploy
@@ -40,10 +40,18 @@ If your groups and data are disappearing, it's likely because the database file 
 
 After redeploying, the database should be created at:
 ```
-/opt/render/project/src/backend/database.sqlite
+/opt/render/project/src/backend/data/database.sqlite
 ```
 
 This location is on the persistent disk and will survive redeploys.
+
+## ⚠️ IMPORTANT: Mount Path Issue
+
+**DO NOT mount the disk at `/opt/render/project/src/backend`** - this will overwrite your code directory and break the build!
+
+**CORRECT mount path**: `/opt/render/project/src/backend/data`
+
+This creates a subdirectory for the database while keeping your code intact.
 
 ## Important Notes
 
@@ -60,4 +68,3 @@ After configuring the persistent disk:
 4. Check if the data is still there
 
 If data persists, the fix worked!
-
