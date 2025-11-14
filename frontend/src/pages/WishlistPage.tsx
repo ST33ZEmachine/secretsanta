@@ -205,8 +205,8 @@ const WishlistPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
           <button
             onClick={() => {
               if (groupId) {
@@ -215,33 +215,26 @@ const WishlistPage: React.FC = () => {
                 navigate('/');
               }
             }}
-            className="p-2 border-2 border-gray-300 hover:border-primary-600 text-gray-600 hover:text-primary-600 transition-all"
+            className="p-2 border-2 border-gray-300 hover:border-primary-600 text-gray-600 hover:text-primary-600 transition-all flex-shrink-0"
             style={{ boxShadow: '2px 2px 0px 0px rgb(156 163 175)' }}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
-          <div className="flex items-center gap-3">
+          <div className="hidden sm:block flex-shrink-0">
             <PixelGift size={40} />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                {participant ? `${participant.name}'s Wishlist` : 'My Wishlist'}
-                <PixelIcon name="star" size={20} color="#ffd700" />
-              </h1>
-              {participant && (
-                <p className="mt-1 text-gray-600 flex items-center gap-2">
-                  <PixelIcon name="snowflake" size={12} color="#16a34a" />
-                  {participant.email}
-                  <PixelIcon name="snowflake" size={12} color="#dc2626" />
-                </p>
-              )}
-            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-2 flex-wrap">
+              <span className="truncate">{participant ? `${participant.name}'s Wishlist` : 'My Wishlist'}</span>
+              <PixelIcon name="star" size={20} color="#ffd700" className="flex-shrink-0" />
+            </h1>
           </div>
         </div>
         
         {isOwner && items.length > 0 && (
           <button
             onClick={() => setIsFormOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 border-2 border-green-800 text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 border-2 border-green-800 text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all whitespace-nowrap flex-shrink-0"
             style={{ 
               boxShadow: '4px 4px 0px 0px rgb(22 101 52)',
               transform: 'translate(0, 0)'
@@ -255,8 +248,8 @@ const WishlistPage: React.FC = () => {
               e.currentTarget.style.transform = 'translate(0, 0)';
             }}
           >
-            <Plus className="h-5 w-5" />
-            Add Item
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span>Add Item</span>
           </button>
         )}
       </div>

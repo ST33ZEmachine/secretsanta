@@ -65,17 +65,22 @@ const CreateGroupPage: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-3">
-          <PixelGift size={48} />
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            Create Secret Santa Group
-            <PixelIcon name="star" size={24} color="#ffd700" />
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3">
+          <div className="hidden sm:block">
+            <PixelGift size={48} />
+          </div>
+          <div className="block sm:hidden">
+            <PixelGift size={32} />
+          </div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-2 flex-wrap">
+            <span>Create Secret Santa Group</span>
+            <PixelIcon name="star" size={20} color="#ffd700" className="sm:w-6 sm:h-6" />
           </h1>
         </div>
-        <p className="mt-2 text-gray-600 flex items-center gap-2">
+        <p className="mt-2 text-sm sm:text-base text-gray-600 flex items-center gap-2 flex-wrap">
           <PixelIcon name="snowflake" size={12} color="#16a34a" />
-          Set up a new Secret Santa group and invite your friends and family!
+          <span>Set up a new Secret Santa group and invite your friends and family!</span>
           <PixelIcon name="snowflake" size={12} color="#dc2626" />
         </p>
       </div>

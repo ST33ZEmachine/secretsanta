@@ -193,38 +193,38 @@ const GroupPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
           <button
             onClick={() => navigate('/')}
-            className="p-2 border-2 border-gray-300 hover:border-primary-600 text-gray-600 hover:text-primary-600 transition-all"
+            className="p-2 border-2 border-gray-300 hover:border-primary-600 text-gray-600 hover:text-primary-600 transition-all flex-shrink-0"
             style={{ boxShadow: '2px 2px 0px 0px rgb(156 163 175)' }}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
-          <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
             <PixelGift size={40} />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                {group.name}
-                {assignmentsGenerated && (
-                  <PixelIcon name="star" size={20} color="#ffd700" />
-                )}
-              </h1>
-              {group.description && (
-                <p className="mt-1 text-gray-600 flex items-center gap-2">
-                  <PixelIcon name="snowflake" size={12} color="#16a34a" />
-                  {group.description}
-                  <PixelIcon name="snowflake" size={12} color="#dc2626" />
-                </p>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-2 flex-wrap">
+              <span className="truncate">{group.name}</span>
+              {assignmentsGenerated && (
+                <PixelIcon name="star" size={20} color="#ffd700" className="flex-shrink-0" />
               )}
-            </div>
+            </h1>
+            {group.description && (
+              <p className="mt-1 text-sm sm:text-base text-gray-600 flex items-center gap-2 flex-wrap">
+                <PixelIcon name="snowflake" size={12} color="#16a34a" />
+                <span className="break-words">{group.description}</span>
+                <PixelIcon name="snowflake" size={12} color="#dc2626" />
+              </p>
+            )}
           </div>
         </div>
         {group.isOwner && (
           <button
             onClick={handleInviteClick}
-            className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-primary-800 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-primary-800 text-xs sm:text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all whitespace-nowrap flex-shrink-0"
             style={{ 
               boxShadow: '3px 3px 0px 0px rgb(127 29 29)',
               transform: 'translate(0, 0)'
@@ -238,8 +238,8 @@ const GroupPage: React.FC = () => {
               e.currentTarget.style.transform = 'translate(0, 0)';
             }}
           >
-            <UserPlus className="h-4 w-4" />
-            <span className="text-xs">Invite ({group.joined_count}/{group.max_participants})</span>
+            <UserPlus className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="text-xs sm:text-sm">Invite ({group.joined_count}/{group.max_participants})</span>
           </button>
         )}
       </div>
@@ -409,12 +409,17 @@ const GroupPage: React.FC = () => {
                     );
                     
                     return (
-                      <div key={index} className="p-4 border-2 border-primary-600 bg-primary-50" style={{ boxShadow: '4px 4px 0px 0px rgb(127 29 29)' }}>
+                      <div key={index} className="p-3 sm:p-4 border-2 border-primary-600 bg-primary-50" style={{ boxShadow: '4px 4px 0px 0px rgb(127 29 29)' }}>
                         <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
-                            <PixelGift size={32} />
+                          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 overflow-hidden">
+                            <div className="hidden sm:block">
+                              <PixelGift size={32} />
+                            </div>
+                            <div className="block sm:hidden">
+                              <PixelGift size={24} />
+                            </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xl font-bold text-primary-900 truncate">
+                              <p className="text-lg sm:text-xl font-bold text-primary-900 truncate">
                                 {assignment.receiverName}
                               </p>
                             </div>
@@ -422,11 +427,11 @@ const GroupPage: React.FC = () => {
                           {participant && participant.status === 'joined' && (
                             <button
                               onClick={() => navigate(`/group/${groupId}/wishlist/${participant.id}`)}
-                              className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 border-2 border-green-800 transition-all flex-shrink-0"
+                              className="flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 border-2 border-green-800 transition-all flex-shrink-0 whitespace-nowrap"
                               style={{ boxShadow: '4px 4px 0px 0px rgb(22 101 52)' }}
                               title="View wishlist"
                             >
-                              <span className="whitespace-nowrap">Wishlist</span>
+                              <span>Wishlist</span>
                             </button>
                           )}
                         </div>
@@ -465,20 +470,25 @@ const GroupPage: React.FC = () => {
 
         {/* Right Column - Participants */}
         <div className="lg:col-span-1">
-          <div className="card sticky top-24">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
+          <div className="card lg:sticky lg:top-24">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
               Participants ({participants.length})
             </h2>
             
-            <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
+            <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[calc(100vh-300px)] overflow-y-auto">
               {participants.map((participant) => (
-                <div key={participant.id} className="flex items-center justify-between p-3 border-2 border-gray-800 bg-white">
-                  <div className="flex items-center space-x-3 flex-1 min-w-0 overflow-hidden">
+                <div key={participant.id} className="flex items-center justify-between p-2 sm:p-3 border-2 border-gray-800 bg-white">
+                  <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0 overflow-hidden">
                     <div className="flex-shrink-0">
-                      <PixelIcon name="person" size={32} color="#dc2626" variant={getVariantFromId(participant.id)} />
+                      <div className="hidden sm:block">
+                        <PixelIcon name="person" size={32} color="#dc2626" variant={getVariantFromId(participant.id)} />
+                      </div>
+                      <div className="block sm:hidden">
+                        <PixelIcon name="person" size={24} color="#dc2626" variant={getVariantFromId(participant.id)} />
+                      </div>
                     </div>
                     <div className="min-w-0 flex-1 overflow-hidden" title={participant.email}>
-                      <p className="text-sm font-bold text-gray-900 truncate">
+                      <p className="text-xs sm:text-sm font-bold text-gray-900 truncate">
                         {participant.name || 'Unknown'}
                       </p>
                     </div>
@@ -490,7 +500,7 @@ const GroupPage: React.FC = () => {
                       style={{ boxShadow: '2px 2px 0px 0px rgb(185 28 28)' }}
                       title="View wishlist"
                     >
-                      <span className="hidden sm:inline">Wishlist</span>
+                      <span>Wishlist</span>
                     </button>
                   )}
                 </div>

@@ -53,10 +53,10 @@ const WishlistItemComponent: React.FC<WishlistItemProps> = ({
 
   return (
     <div className={`card ${item.is_purchased && !isOwner ? 'opacity-60' : ''}`}>
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">{item.title}</h3>
             {item.secondhand_ok && (
               <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                 Secondhand OK
@@ -114,7 +114,7 @@ const WishlistItemComponent: React.FC<WishlistItemProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2 ml-4">
+        <div className="flex items-center gap-2 sm:ml-4 w-full sm:w-auto justify-between sm:justify-start">
           {canPurchase && (
             <div className="flex flex-col items-center gap-1">
               <button

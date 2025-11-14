@@ -54,23 +54,23 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex-1">
           <div className="mb-2">
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Ho Ho Ho, <span className="text-primary-600">{user?.name}</span>!
             </h1>
           </div>
-          <p className="mt-2 text-gray-600 flex items-center gap-2">
+          <p className="mt-2 text-sm sm:text-base text-gray-600 flex items-center gap-2 flex-wrap">
             <PixelIcon name="star" size={16} color="#ffd700" />
-            Manage your Secret Santa groups and spread the holiday cheer!
+            <span>Manage your Secret Santa groups and spread the holiday cheer!</span>
             <PixelIcon name="star" size={16} color="#ffd700" />
           </p>
         </div>
         {groups.length > 0 && (
           <Link
             to="/create-group"
-            className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-primary-800 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-primary-800 text-xs sm:text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all whitespace-nowrap"
             style={{ 
               boxShadow: '3px 3px 0px 0px rgb(127 29 29)',
               transform: 'translate(0, 0)'
