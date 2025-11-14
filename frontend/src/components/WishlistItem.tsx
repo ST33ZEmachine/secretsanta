@@ -65,7 +65,7 @@ const WishlistItemComponent: React.FC<WishlistItemProps> = ({
             {item.is_purchased && !isOwner && (
               <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 flex items-center gap-1">
                 <Check className="h-3 w-3" />
-                Purchased{item.purchased_by_name ? ` by ${item.purchased_by_name}` : ''}
+                Purchased
               </span>
             )}
           </div>
@@ -151,7 +151,7 @@ const WishlistItemComponent: React.FC<WishlistItemProps> = ({
                 <Check className="h-4 w-4" />
               </div>
               <span className="text-xs text-gray-500 text-center">
-                {item.purchased_by_name ? `Purchased by ${item.purchased_by_name}` : 'Purchased'}
+                Purchased
               </span>
             </div>
           )}
