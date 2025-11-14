@@ -107,7 +107,7 @@ const Recommendations: React.FC<RecommendationsProps> = ({ participantId, curren
       style={{ boxShadow: '3px 3px 0px 0px rgb(30 64 175)' }}
     >
       <Plus className="h-4 w-4" />
-      Add
+      Add Recommendation
     </button>
   );
 
@@ -222,7 +222,7 @@ const Recommendations: React.FC<RecommendationsProps> = ({ participantId, curren
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold text-gray-900">Add</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Add Recommendation</h2>
               <button
                 onClick={() => {
                   setIsFormOpen(false);
