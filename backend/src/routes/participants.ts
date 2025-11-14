@@ -212,4 +212,145 @@ router.get('/all-assignments/:groupId', authenticateToken, asyncHandler(async (r
   res.json({ assignments });
 }));
 
+// Verify assignments for a group (owner only)
+router.get('/verify-assignments/:groupId', authenticateToken, asyncHandler(async (req: AuthRequest, res) => {
+  const { groupId } = req.params;
+
+  // Check if user is the group owner
+  const group = await new Promise((resolve, reject) => {
+    db.get('SELECT id, name, gifts_per_participant, owner_id FROM groups WHERE id = ?', [groupId], (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  }) as any;
+
+  if (!group || group.owner_id !== req.user!.id) {
+    throw createError('Access denied', 403);
+  }
+
+  const giftsPerParticipant = group.gifts_per_participant || 1;
+
+  // Get all participants
+  const participants = await new Promise((resolve, reject) => {
+    db.all(`
+      SELECT p.id, COALESCE(u.name, p.name) as name, p.email
+      FROM participants p
+      LEFT JOIN users u ON p.user_id = u.id
+      WHERE p.group_id = ? AND p.status = 'joined'
+      ORDER BY COALESCE(u.name, p.name)
+    `, [groupId], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  }) as any[];
+
+  // Get all assignments
+  const assignments = await new Promise((resolve, reject) => {
+    db.all(`
+      SELECT 
+        giver.id as giver_id,
+        COALESCE(giver_u.name, giver.name) as giver_name,
+        receiver.id as receiver_id,
+        COALESCE(receiver_u.name, receiver.name) as receiver_name,
+        a.gift_number
+      FROM assignments a
+      JOIN participants giver ON a.giver_id = giver.id
+      JOIN participants receiver ON a.receiver_id = receiver.id
+      LEFT JOIN users giver_u ON giver.user_id = giver_u.id
+      LEFT JOIN users receiver_u ON receiver.user_id = receiver_u.id
+      WHERE a.group_id = ?
+      ORDER BY giver_name, a.gift_number
+    `, [groupId], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  }) as any[];
+
+  // Track giving and receiving
+  const givesCount = new Map();
+  const receivesCount = new Map();
+  const selfAssignments: any[] = [];
+  const assignmentDetails = new Map();
+
+  participants.forEach(p => {
+    givesCount.set(p.id, 0);
+    receivesCount.set(p.id, 0);
+    assignmentDetails.set(p.id, []);
+  });
+
+  assignments.forEach(assignment => {
+    // Check for self-assignment
+    if (assignment.giver_id === assignment.receiver_id) {
+      selfAssignments.push({
+        person: assignment.giver_name,
+        giftNumber: assignment.gift_number
+      });
+    }
+
+    // Count gives
+    givesCount.set(assignment.giver_id, (givesCount.get(assignment.giver_id) || 0) + 1);
+    
+    // Count receives
+    receivesCount.set(assignment.receiver_id, (receivesCount.get(assignment.receiver_id) || 0) + 1);
+    
+    // Store details
+    const details = assignmentDetails.get(assignment.giver_id) || [];
+    details.push({
+      receiver: assignment.receiver_name,
+      giftNumber: assignment.gift_number
+    });
+    assignmentDetails.set(assignment.giver_id, details);
+  });
+
+  // Build verification report
+  const participantReports = participants.map(participant => {
+    const gives = givesCount.get(participant.id) || 0;
+    const receives = receivesCount.get(participant.id) || 0;
+    const details = assignmentDetails.get(participant.id) || [];
+    
+    return {
+      name: participant.name,
+      email: participant.email,
+      gives: gives,
+      receives: receives,
+      expectedGives: giftsPerParticipant,
+      expectedReceives: giftsPerParticipant,
+      givesCorrect: gives === giftsPerParticipant,
+      receivesCorrect: receives === giftsPerParticipant,
+      assignments: details.map(d => ({
+        receiver: d.receiver,
+        giftNumber: d.giftNumber
+      }))
+    };
+  });
+
+  const allGivesCorrect = participantReports.every(p => p.givesCorrect);
+  const allReceivesCorrect = participantReports.every(p => p.receivesCorrect);
+  const hasSelfAssignments = selfAssignments.length > 0;
+  const totalAssignments = assignments.length;
+  const expectedAssignments = participants.length * giftsPerParticipant;
+
+  const isValid = allGivesCorrect && allReceivesCorrect && !hasSelfAssignments && totalAssignments === expectedAssignments;
+
+  res.json({
+    groupName: group.name,
+    giftsPerParticipant: giftsPerParticipant,
+    totalParticipants: participants.length,
+    totalAssignments: totalAssignments,
+    expectedAssignments: expectedAssignments,
+    isValid: isValid,
+    hasSelfAssignments: hasSelfAssignments,
+    selfAssignments: selfAssignments,
+    allGivesCorrect: allGivesCorrect,
+    allReceivesCorrect: allReceivesCorrect,
+    participants: participantReports,
+    summary: {
+      status: isValid ? 'success' : 'error',
+      message: isValid 
+        ? '✅ All assignments are correct! Everyone gives and receives the correct number of gifts, and there are no self-assignments.'
+        : '⚠️ Issues found. Please review the participant details below.'
+    }
+  });
+}));
+
 export default router;

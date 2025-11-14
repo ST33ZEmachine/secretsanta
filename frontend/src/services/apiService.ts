@@ -148,6 +148,11 @@ class ApiService {
     return response.data;
   }
 
+  async verifyAssignments(groupId: string) {
+    const response = await this.api.get(`/participants/verify-assignments/${groupId}`);
+    return response.data;
+  }
+
   // Wishlist endpoints
   async getMyWishlist(groupId: string) {
     const response = await this.api.get(`/wishlist/my-wishlist/${groupId}`);
