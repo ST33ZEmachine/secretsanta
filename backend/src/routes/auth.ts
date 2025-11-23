@@ -124,6 +124,40 @@ router.put('/profile', authenticateToken, asyncHandler(async (req: AuthRequest, 
   res.json({ message: 'Profile updated successfully' });
 }));
 
+// Admin list users endpoint (for finding user emails)
+// SECURITY: This uses a simple admin key. In production, you should use a more secure method.
+router.get('/admin/users', asyncHandler(async (req, res) => {
+  const adminKey = req.query.adminKey as string;
+
+  // Check admin key
+  const expectedKey = process.env.ADMIN_RESET_KEY;
+  if (!expectedKey) {
+    throw createError('Admin access not configured', 503);
+  }
+
+  if (adminKey !== expectedKey) {
+    throw createError('Invalid admin key', 403);
+  }
+
+  // Get all users
+  const users = await new Promise((resolve, reject) => {
+    db.all('SELECT id, email, name, created_at FROM users ORDER BY created_at DESC', [], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  }) as any[];
+
+  res.json({
+    message: 'Users retrieved successfully',
+    count: users.length,
+    users: users.map(u => ({
+      email: u.email,
+      name: u.name,
+      created_at: u.created_at
+    }))
+  });
+}));
+
 // Admin password reset endpoint
 // SECURITY: This uses a simple admin key. In production, you should use a more secure method.
 // Set ADMIN_RESET_KEY environment variable to use this endpoint.
