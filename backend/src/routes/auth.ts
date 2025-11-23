@@ -124,6 +124,68 @@ router.put('/profile', authenticateToken, asyncHandler(async (req: AuthRequest, 
   res.json({ message: 'Profile updated successfully' });
 }));
 
+// Admin password reset endpoint
+// SECURITY: This uses a simple admin key. In production, you should use a more secure method.
+// Set ADMIN_RESET_KEY environment variable to use this endpoint.
+router.post('/admin/reset-password', asyncHandler(async (req, res) => {
+  const { email, newPassword, adminKey } = req.body;
+
+  // Check admin key
+  const expectedKey = process.env.ADMIN_RESET_KEY;
+  if (!expectedKey) {
+    throw createError('Password reset not configured', 503);
+  }
+
+  if (adminKey !== expectedKey) {
+    throw createError('Invalid admin key', 403);
+  }
+
+  if (!email || !newPassword) {
+    throw createError('Email and new password are required', 400);
+  }
+
+  if (newPassword.length < 6) {
+    throw createError('Password must be at least 6 characters', 400);
+  }
+
+  const sanitizedEmail = sanitizeEmail(email);
+
+  // Find user
+  const user = await new Promise((resolve, reject) => {
+    db.get('SELECT id, email, name FROM users WHERE email = ?', [sanitizedEmail], (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  }) as any;
+
+  if (!user) {
+    throw createError('User not found', 404);
+  }
+
+  // Hash new password
+  const hashedPassword = await hashPassword(newPassword);
+
+  // Update password
+  await new Promise((resolve, reject) => {
+    db.run(
+      'UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [hashedPassword, user.id],
+      function(err) {
+        if (err) reject(err);
+        else resolve(this);
+      }
+    );
+  });
+
+  res.json({
+    message: 'Password reset successfully',
+    user: {
+      email: user.email,
+      name: user.name
+    }
+  });
+}));
+
 export default router;
 
 
